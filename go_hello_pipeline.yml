@@ -1,0 +1,16 @@
+# fly -t lite set-pipeline --config go_hello_pipeline.yml --pipeline hello
+
+
+resources:
+- name: source-code-hello-world
+  type: git
+  source:
+    uri: https://github.com/Sispheor/concourse_demo.git
+    branch: master
+
+jobs:
+  - name: test
+    plan:
+      - get: source-code-hello-world
+      - task: task-test
+        file: source-code-hello-world/ci/01-task-tests.yml

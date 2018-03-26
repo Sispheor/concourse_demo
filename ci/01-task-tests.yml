@@ -1,0 +1,16 @@
+# manuall testing:
+# fly -t lite execute --config ci/01-task-tests.yml --input source-code-hello-world=.
+
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+
+inputs:
+  - name: source-code-hello-world
+
+run:
+  path: ./source-code-hello-world/ci/run-tests.sh
