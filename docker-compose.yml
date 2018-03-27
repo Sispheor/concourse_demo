@@ -1,10 +1,23 @@
 version: '3'
 
+volumes:
+  local-registry:
+
 networks:
   front-tier:
   back-tier:
 
 services:
+  registry:
+    restart: always
+    image: registry:2
+    ports:
+      - 5000:5000
+    volumes:
+      - local-registry:/var/lib/registry
+    networks:
+      - front-tier
+      - back-tier
   concourse-db:
     image: postgres:9.5
     environment:
@@ -29,7 +42,7 @@ services:
     environment:
       CONCOURSE_BASIC_AUTH_USERNAME: concourse
       CONCOURSE_BASIC_AUTH_PASSWORD: changeme
-      CONCOURSE_EXTERNAL_URL: "http://${CONCOURSE_EXTERNAL_URL}:8080"
+      CONCOURSE_EXTERNAL_URL: "http://10.33.101.57:8080"
       CONCOURSE_POSTGRES_HOST: concourse-db
       CONCOURSE_POSTGRES_USER: concourse
       CONCOURSE_POSTGRES_PASSWORD: changeme

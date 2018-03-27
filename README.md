@@ -9,17 +9,13 @@
   - [Deploy a pipeline](#deploy-a-pipeline)
     - [Hello world pipeline](#hello-world-pipeline)
     - [Go API pipeline](#go-api-pipeline)
-    - [With crendentials pipeline](#with-crendentials-pipeline)
   - [Test locally](#test-locally)
-    - [Task 1: Python test](#task-1-python-test)
-    - [Task 2: Compile](#task-2-compile)
 
 ## Deploy Concourse CI with local Docker
 
 The compose file will deploy:
 - a Docker registry server
-- a git server
-- postgress database server for concourse
+- database server for concourse
 - concourse server
 
 ### Concourse config
@@ -120,48 +116,25 @@ This pipeline will:
 - detect change on a git repo
 - test the project
 - build the project
-- push into a Swarm cluster the APIl
+- push into a Swarm cluster the API
 
-### With crendentials pipeline
-Run the command below to deploy the pipeline to the backend
+Set the pipeline
 ```
-fly -t lite set-pipeline --config pipeline.yml --pipeline test-git-concourse --load-vars-from credentials.yml
+fly -t lite set-pipeline -p go-hello -c go_hello_pipeline.yml
 ```
 
-> **note:** `credentials.yml` must not be included in the GIT repository if this one is not private.
-
-The credentials file contains name/value pairs defining variables used by the "rsync" resource.
-See the `pipeline.yml` file to see their use.  See the [GitHub repo](https://github.com/mrsixw/concourse-rsync-resource) for more information about the rsync resource.
-
-Example `credentials.yml`:
-```yml
-rsync_server: terre.gre.hpecorp.net
-rsync_sync_directory: /var/www/public/oe-tune_rpm_build
-rsync_user: pusher
-
-rsync_private_repo_key: |
-  -----BEGIN RSA PRIVATE KEY-----
-  MIIEogIBAAKCAQEAt8qzYz3R6u61sn99HrMgin5eh7kAjOmkyAhiZ1V/bGqQpRD3
-  TRUNCATED
-  3Ucif7VO/xlbC8dGyBk2TOrRZ3kgE0BX+DGxbeckK1FTaC6kS8U=
-  -----END RSA PRIVATE KEY-----
+Unpause
 ```
+fly -t lite unpause-pipeline --pipeline go-hello
+```
+
 
 ## Test locally
 
 Concourse allows you to test the code of the CI locally before pushing the pipeline to the server.
 
-### Task 1: Python test
-First task to run python test
+Local execution of the testing job
 ```
-cd concourse # this repo
-fly -t lite execute -c ci/task-tests.yml --input concourse-git-repo=.
+fly -t lite execute --config ci/01-task-tests.yml --input source-code-hello-world=.
 ```
 
-
-### Task 2: Compile
-```
-mkdir -p /tmp/built-rpms
-cd concourse # this repo
-fly -t lite execute -c ci/task-compile.yml --input concourse-git-repo=. --output built-rpms=/tmp/built-rpms
-```
