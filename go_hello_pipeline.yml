@@ -8,18 +8,18 @@ resource_types:
       tag: latest
 
 resources:
-- name: source-code-hello-world
-  type: git
-  source:
-    uri: https://github.com/Sispheor/concourse_demo.git
-    branch: master
+  - name: source-code-hello-world
+    type: git
+    source:
+      uri: https://github.com/Sispheor/concourse_demo.git
+      branch: master
 
-- name: docker-local-registry
-  type: docker-image-resource
-  source:
-    repository: 10.33.101.57:5000/hello
-    insecure_registries:
-      - 10.33.101.57:5000
+  - name: docker-local-registry
+    type: docker-image-resource
+    source:
+      repository: 10.33.101.57:5000/hello
+      insecure_registries:
+        - 10.33.101.57:5000
 
 
 jobs:
@@ -32,4 +32,3 @@ jobs:
         params:
           build: source-code-hello-world/hello_go_api
           dockerfile: source-code-hello-world/hello_go_api/hello.run.dockerfile
-
