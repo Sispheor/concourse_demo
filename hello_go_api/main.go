@@ -14,6 +14,7 @@ type Hello struct {
 	Hello string
 }
 
+// Version a struct to show the version
 type Version struct {
 	Version string
 }

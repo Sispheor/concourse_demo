@@ -9,8 +9,13 @@ client = docker.DockerClient(base_url="tcp://10.33.101.57:2376")
 hello_image_from_private_registry = "10.33.101.57:5000/hello"
 client.images.pull(hello_image_from_private_registry)
 
+hello_container = None
 # kill existing
-hello_container = client.containers.get("hello")
+try:
+    hello_container = client.containers.get("hello")
+except docker.errors.NotFound:
+    pass
+
 if hello_container:
     try:
         hello_container.kill()

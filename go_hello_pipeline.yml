@@ -26,6 +26,7 @@ jobs:
   - name: Tests
     plan:
       - get: source-code-hello-world
+        # trigger: true
       - task: test
         file: source-code-hello-world/ci/01-task-tests.yml
       - put: docker-local-registry
@@ -36,6 +37,7 @@ jobs:
     plan:
       - get: source-code-hello-world
         passed: [Tests]
+        # trigger: true
       - task: deploy
         file: source-code-hello-world/ci/02-task-deploy.yml
 
