@@ -26,9 +26,16 @@ jobs:
   - name: Tests
     plan:
       - get: source-code-hello-world
-      - task: task-test
+      - task: test
         file: source-code-hello-world/ci/01-task-tests.yml
       - put: docker-local-registry
         params:
           build: source-code-hello-world/hello_go_api
           dockerfile: source-code-hello-world/hello_go_api/hello.run.dockerfile
+  - name: Deploy
+    plan:
+      - get: source-code-hello-world
+        passed: [Tests]
+      - task: deploy
+        file: source-code-hello-world/ci/02-task-deploy.yml
+

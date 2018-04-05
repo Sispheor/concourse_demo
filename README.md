@@ -1,15 +1,38 @@
 # Concourse CI test
 
 - [Concourse CI test](#concourse-ci-test)
+  - [Enable remote API for Dockerd](#enable-remote-api-for-dockerd)
   - [Deploy Concourse CI with local Docker](#deploy-concourse-ci-with-local-docker)
     - [Concourse config](#concourse-config)
     - [Run Docker compose](#run-docker-compose)
   - [Install and configure fly CLI](#install-and-configure-fly-cli)
   - [Fly CLI bash completion](#fly-cli-bash-completion)
+  - [Push required Docker images](#push-required-docker-images)
   - [Deploy a pipeline](#deploy-a-pipeline)
     - [Hello world pipeline](#hello-world-pipeline)
     - [Go API pipeline](#go-api-pipeline)
   - [Test locally](#test-locally)
+
+## Enable remote API for Dockerd
+
+For this demo, we will need to discuss with the local docker daemon in order to deploy the built project.
+
+Create /etc/systemd/system/docker.service.d/startup_options.conf
+```
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2376
+```
+Then reload the docker daemon
+```
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+```
+
+Check
+```
+curl -X GET http://127.0.0.1:2376/v1.24/containers/json
+```
 
 ## Deploy Concourse CI with local Docker
 
@@ -94,6 +117,22 @@ bashcompinit
 source /etc/bash_completion.d/fly
 ```
 
+## Push required Docker images
+
+In the pipeline, one of our task is based on a own made docker image. We need to make this image available from our private registry.
+
+First step, build the image locally
+```
+cd ci/deployment
+docker build --force-rm=true -f hello.deployment.dockerfile -t hello-deployment .
+```
+
+Tag and push into the private registry that has been deployed with docker compose previously
+```
+docker tag hello-deployment 10.33.101.57:5000/hello-deployment
+docker push 10.33.101.57:5000/hello-deployment
+```
+
 ## Deploy a pipeline
 
 ### Hello world pipeline
@@ -138,3 +177,7 @@ Local execution of the testing job
 fly -t lite execute --config ci/01-task-tests.yml --input source-code-hello-world=.
 ```
 
+Local execution of the deployment
+```
+fly -t lite execute --config ci/02-task-deploy.yml --input source-code-hello-world=.
+```
