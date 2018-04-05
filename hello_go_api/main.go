@@ -52,7 +52,7 @@ func GetVersion(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%s\n", "GetHello called")
 
 	// create hello object
-	version := Version{"1.0"}
+	version := Version{"1.1"}
 
 	// to json
 	js, err := json.Marshal(version)
